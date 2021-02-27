@@ -33,17 +33,6 @@ class excelOper(object):
     def saveWorkBook(self):
         self.__workbook.save(self.__filepath)
         
-
-def write_excel_xlsx(path, sheet_name, value):
-    workbook = openpyxl.Workbook()
-    sheet = workbook.active
-    sheet.title = sheet_name
-    for i,row in enumerate(value):
-        for j,col in enumerate(value[i]):
-            sheet.cell(row=i+1, column=j+1, value=str(value[i][j]))
-    workbook.save(path)
-    print("xlsx格式表格写入数据成功！")
-
 def getLatitudeandLongitude(ak_key,pname,city,rctype='bd09ll'):
     resultMessage = ''
     getLatitudeandLongitudeurl = 'http://api.map.baidu.com/geocoding/v3/'
@@ -123,48 +112,27 @@ def dataTrans(dataclassification,value):
         return formatResult
 
 def __main__():
-    apiResult = getPOI(ak_key=ak_key,l='31.222042,121.390664')
-    formatResult = []
-
-    for k,v in enumerate(apiResult):
-        temp_formatResult = []
-        temp_formatResult.extend([v.get('name')])
-        temp_formatResult.extend([v.get('address')])
-        temp_formatResult.extend([v.get('location').get('lat')])
-        temp_formatResult.extend([v.get('location').get('lng')])
-        formatResult.append(temp_formatResult)
-
-    # write_excel_xlsx(path=output_path,sheet_name='威宁路700M',value=formatResult)
+    dataresult = getPOI(ak_key=ak_key,r=700,l=getLatitudeandLongitude(ak_key=ak_key,pname='威宁路地铁站',city='上海市'))
+    activeWorkBook = excelOper(path=output_path,fname='地铁站700m范围楼盘.xlsx')
+    formatResult = dataTrans(dataclassification='POI',value=dataresult)
+    activeWorkBook.activeWorkSheet(sname='威宁路')
+    activeWorkBook.insertIntoWorkSheet(value=formatResult)
+    dataresult2 = getPOI(ak_key=ak_key,r=700,l=getLatitudeandLongitude(ak_key=ak_key,pname='北新泾地铁站',city='上海市'))
+    formatResult2 = dataTrans(dataclassification='POI',value=dataresult2)
+    activeWorkBook.activeWorkSheet(sname='北新泾')
+    activeWorkBook.insertIntoWorkSheet(value=formatResult2)
+    activeWorkBook.saveWorkBook()
 
 def testFunc():
     dataresult = getPOI(ak_key=ak_key,r=700,l=getLatitudeandLongitude(ak_key=ak_key,pname='威宁路地铁站',city='上海市'))
     activeWorkBook = excelOper(path=output_path,fname='地铁站700m范围楼盘.xlsx')
-
-    formatResult = []
-    for k,v in enumerate(dataresult):
-        temp_formatResult = []
-        temp_formatResult.extend([v.get('name')])
-        temp_formatResult.extend([v.get('address')])
-        temp_formatResult.extend([v.get('location').get('lat')])
-        temp_formatResult.extend([v.get('location').get('lng')])
-        formatResult.append(temp_formatResult)
+    formatResult = dataTrans(dataclassification='POI',value=dataresult)
     activeWorkBook.activeWorkSheet(sname='威宁路')
     activeWorkBook.insertIntoWorkSheet(value=formatResult)
     dataresult2 = getPOI(ak_key=ak_key,r=700,l=getLatitudeandLongitude(ak_key=ak_key,pname='北新泾地铁站',city='上海市'))
-    formatResult2 = []
-    for k,v in enumerate(dataresult2):
-        temp_formatResult = []
-        temp_formatResult.extend([v.get('name')])
-        temp_formatResult.extend([v.get('address')])
-        temp_formatResult.extend([v.get('location').get('lat')])
-        temp_formatResult.extend([v.get('location').get('lng')])
-        formatResult2.append(temp_formatResult)
+    formatResult2 = dataTrans(dataclassification='POI',value=dataresult2)
     activeWorkBook.activeWorkSheet(sname='北新泾')
     activeWorkBook.insertIntoWorkSheet(value=formatResult2)
     activeWorkBook.saveWorkBook()
 
 testFunc()
-
-# poi=getLatitudeandLongitude(ak_key=ak_key,pname='威宁路地铁站',city='上海市')
-# dataresult = getPOI(ak_key=ak_key,r=700,l=poi)
-# print(dataresult)
